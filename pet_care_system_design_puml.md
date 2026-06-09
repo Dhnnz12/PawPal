@@ -49,13 +49,11 @@ File Sumber: [usecase.puml](file:///c:/Users/62899/.gemini/antigravity-ide/scrat
 @startuml UseCase
 left to right direction
 actor "🐾 Pet Owner" as PO
-actor "🧑‍⚕️ Service Provider" as SP
 actor "📊 System Administrator" as ADM
 
 package "PawPal System" {
   usecase "Masuk Akun (Login)" as UC1
   usecase "Daftar Akun Mandiri (Pet Owner)" as UC1a
-  usecase "Daftarkan Penyedia Layanan (Service Provider)" as UC1b
   usecase "Kelola Profil Hewan Peliharaan" as UC2
   usecase "Cari & Pesan Layanan" as UC3
   usecase "Belanja Produk Marketplace" as UC4
@@ -64,7 +62,7 @@ package "PawPal System" {
   usecase "Beri Ulasan / Rating" as UC7
   usecase "Kelola Jadwal & Layanan" as UC8
   usecase "Kelola Transaksi & Produk" as UC9
-  usecase "Verifikasi Penyedia Layanan" as UC10
+  usecase "Akses & Unggah Rekam Medis Hewan" as UC10
   usecase "Kelola Pengguna (User Management)" as UC11
 }
 
@@ -77,16 +75,11 @@ PO --> UC5
 PO --> UC6
 PO --> UC7
 
-SP --> UC1
-SP --> UC8
-SP --> UC9
-
 ADM --> UC1
-ADM --> UC1b
-ADM --> UC10
-ADM --> UC11
 ADM --> UC8
 ADM --> UC9
+ADM --> UC10
+ADM --> UC11
 @enduml
 ```
 
@@ -107,7 +100,7 @@ entity "USERS" as users {
   * name : string
   * email : string
   * password : string
-  * role : string (admin | service_provider | pet_owner)
+  * role : string (admin | pet_owner)
   phone : string
   bio : string
   * is_verified : boolean
@@ -219,9 +212,9 @@ entity "ORDER_ITEMS" as order_items {
 
 users ||--o{ pets : "owns"
 users ||--o{ addresses : "has"
-users ||--o{ services : "offers"
-users ||--o{ products : "sells"
-users ||--o{ bookings : "books / provides"
+users ||--o{ services : "manages (as admin)"
+users ||--o{ products : "sells (as admin)"
+users ||--o{ bookings : "books (as owner) / manages (as admin)"
 users ||--o{ orders : "purchases"
 users ||--o{ reviews : "writes"
 
@@ -301,7 +294,6 @@ class AuthController {
 class DashboardController {
   +index()
   +ownerDashboard()
-  +providerDashboard()
   +adminDashboard()
 }
 
@@ -328,7 +320,6 @@ class User {
   +role: string
   +isAdmin(): boolean
   +isPetOwner(): boolean
-  +isServiceProvider(): boolean
   +pets()
   +addresses()
 }
@@ -359,7 +350,7 @@ Pet --|> Model
 Booking --|> Model
 
 User "1" *-- "0..*" Pet : owns
-User "1" *-- "0..*" Booking : schedules
+User "1" *-- "0..*" Booking : schedules (as owner) / manages (as admin)
 Pet "1" *-- "0..*" Booking : attends
 @enduml
 ```
@@ -381,13 +372,13 @@ start
 :Pilih Alamat Penjemputan;
 :Klik Lanjutkan;
 :Data Booking Dibuat (Status Pending);
-:Notifikasi Ditampilkan ke Provider;
+:Notifikasi Ditampilkan ke Admin;
 
-if (Keputusan Provider?) then (Setuju)
+if (Keputusan Admin?) then (Setuju)
   :Konfirmasi Booking;
-  :Provider Menyelesaikan Tugas;
-  if (Penyedia adalah Vet (Dokter)?) then (Ya)
-    :Upload Rekam Medis (PDF);
+  :Admin Menyelesaikan Tugas (atau menugaskan petugas);
+  if (Layanan adalah Medis / Vet?) then (Ya)
+    :Admin/Vet Mengunggah Rekam Medis (PDF);
   else (Tidak)
   endif
   :Pemilik Hewan Memberikan Ulasan/Rating;

@@ -9,13 +9,13 @@ start
 :Pilih Alamat Penjemputan;
 :Klik Lanjutkan;
 :Data Booking Dibuat (Status Pending);
-:Notifikasi Ditampilkan ke Provider;
+:Notifikasi Ditampilkan ke Admin;
 
-if (Keputusan Provider?) then (Setuju)
+if (Keputusan Admin?) then (Setuju)
   :Konfirmasi Booking;
-  :Provider Menyelesaikan Tugas;
-  if (Penyedia adalah Vet (Dokter)?) then (Ya)
-    :Upload Rekam Medis (PDF);
+  :Admin Menyelesaikan Tugas (atau menugaskan petugas);
+  if (Layanan adalah Medis / Vet?) then (Ya)
+    :Admin/Vet Mengunggah Rekam Medis (PDF);
   else (Tidak)
   endif
   :Pemilik Hewan Memberikan Ulasan/Rating;
