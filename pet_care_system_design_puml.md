@@ -53,7 +53,9 @@ actor "🧑‍⚕️ Service Provider" as SP
 actor "📊 System Administrator" as ADM
 
 package "PawPal System" {
-  usecase "Daftar / Masuk Akun" as UC1
+  usecase "Masuk Akun (Login)" as UC1
+  usecase "Daftar Akun Mandiri (Pet Owner)" as UC1a
+  usecase "Daftarkan Penyedia Layanan (Service Provider)" as UC1b
   usecase "Kelola Profil Hewan Peliharaan" as UC2
   usecase "Cari & Pesan Layanan" as UC3
   usecase "Belanja Produk Marketplace" as UC4
@@ -67,6 +69,7 @@ package "PawPal System" {
 }
 
 PO --> UC1
+PO --> UC1a
 PO --> UC2
 PO --> UC3
 PO --> UC4
@@ -79,6 +82,7 @@ SP --> UC8
 SP --> UC9
 
 ADM --> UC1
+ADM --> UC1b
 ADM --> UC10
 ADM --> UC11
 ADM --> UC8
