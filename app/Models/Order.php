@@ -14,6 +14,7 @@ class Order extends Model
         'status',
         'total_amount',
         'shipping_address',
+        'payment_proof',
     ];
 
     public function petOwner()

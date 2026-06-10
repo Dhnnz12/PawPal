@@ -10,12 +10,18 @@ class ServiceController extends Controller
 {
     public function index()
     {
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.services.index');
+        }
         $services = Auth::user()->services()->get();
         return view('provider.services.index', compact('services'));
     }
 
     public function show(Service $service)
     {
+        if (!Auth::user()->isAdmin() && $service->provider_id !== Auth::id()) {
+            abort(403);
+        }
         return view('provider.services.show', compact('service'));
     }
 
@@ -26,7 +32,7 @@ class ServiceController extends Controller
 
     public function edit(Service $service)
     {
-        if ($service->provider_id !== Auth::id()) {
+        if (!Auth::user()->isAdmin() && $service->provider_id !== Auth::id()) {
             abort(403);
         }
         return view('provider.services.edit', compact('service'));
@@ -36,30 +42,33 @@ class ServiceController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'provider_type' => 'required|string|in:groomer,veterinarian',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'duration_minutes' => 'required|integer|min:1',
         ]);
 
         Service::create([
-            'provider_id' => Auth::id(),
+            'provider_id' => null, // clinic-wide service
+            'provider_type' => $request->provider_type,
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
             'duration_minutes' => $request->duration_minutes,
         ]);
 
-        return redirect()->route('services.index')->with('success', 'Layanan berhasil ditambahkan ke katalog!');
+        return redirect()->route('admin.services.index')->with('success', 'Layanan berhasil ditambahkan ke katalog!');
     }
 
     public function update(Request $request, Service $service)
     {
-        if ($service->provider_id !== Auth::id()) {
+        if (!Auth::user()->isAdmin() && $service->provider_id !== Auth::id()) {
             abort(403);
         }
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'provider_type' => 'required|string|in:groomer,veterinarian',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'duration_minutes' => 'required|integer|min:1',
@@ -67,17 +76,18 @@ class ServiceController extends Controller
 
         $service->update([
             'name' => $request->name,
+            'provider_type' => $request->provider_type,
             'description' => $request->description,
             'price' => $request->price,
             'duration_minutes' => $request->duration_minutes,
         ]);
 
-        return redirect()->route('services.index')->with('success', 'Layanan berhasil diperbarui!');
+        return redirect()->route('admin.services.index')->with('success', 'Layanan berhasil diperbarui!');
     }
 
     public function destroy(Service $service)
     {
-        if ($service->provider_id !== Auth::id()) {
+        if (!Auth::user()->isAdmin() && $service->provider_id !== Auth::id()) {
             abort(403);
         }
 

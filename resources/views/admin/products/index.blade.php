@@ -54,7 +54,12 @@
                                     <span class="pet-badge pet-badge-sage">Active</span>
                                 </td>
                                 <td class="text-end">
-                                    <a href="{{ route('products.edit', $product) ?? '#' }}" class="text-decoration-none fw-bold" style="color: var(--primary); font-size: 0.9rem;">Edit</a>
+                                    <a href="{{ route('products.edit', $product) ?? '#' }}" class="text-decoration-none fw-bold me-2" style="color: var(--primary); font-size: 0.9rem;">Edit</a>
+                                    <form method="POST" action="{{ route('products.destroy', $product) }}" class="d-inline-block m-0" onsubmit="return confirm('Hapus produk ini secara permanen?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="border-0 bg-transparent fw-bold p-0" style="color: #c06c48; font-size: 0.9rem; cursor: pointer;">Hapus</button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty

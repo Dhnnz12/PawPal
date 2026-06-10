@@ -46,15 +46,13 @@ class AdminController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'role' => 'required|string|in:admin,pet_owner,service_provider',
-            'provider_type' => 'required_if:role,service_provider|nullable|string|in:groomer,veterinarian,pet_sitter,seller',
-            'phone' => 'nullable|string|max:20',
+            'provider_type' => 'required_if:role,service_provider|nullable|string|in:groomer,veterinarian',
+            'phone' => 'required|string|max:20',
             'bio' => 'nullable|string',
             'avatar' => 'nullable|image|max:2048',
-            'certification' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
-            'is_verified' => 'required|boolean',
+            'certification' => 'required_if:provider_type,veterinarian|nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
+            'is_verified' => 'required_if:role,service_provider|nullable|boolean',
             'is_active' => 'required|boolean',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
         ]);
 
         $avatarPath = null;
@@ -67,6 +65,8 @@ class AdminController extends Controller
             $certPath = $request->file('certification')->store('certifications', 'public');
         }
 
+        $isVerified = $request->role === 'service_provider' ? (bool)$request->is_verified : true;
+
         User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -77,10 +77,10 @@ class AdminController extends Controller
             'bio' => $request->bio,
             'avatar' => $avatarPath,
             'certification' => $certPath,
-            'is_verified' => $request->is_verified,
+            'is_verified' => $isVerified,
             'is_active' => $request->is_active,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
+            'latitude' => null,
+            'longitude' => null,
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil ditambahkan!');
@@ -98,16 +98,16 @@ class AdminController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6',
             'role' => 'required|string|in:admin,pet_owner,service_provider',
-            'provider_type' => 'required_if:role,service_provider|nullable|string|in:groomer,veterinarian,pet_sitter,seller',
-            'phone' => 'nullable|string|max:20',
+            'provider_type' => 'required_if:role,service_provider|nullable|string|in:groomer,veterinarian',
+            'phone' => 'required|string|max:20',
             'bio' => 'nullable|string',
             'avatar' => 'nullable|image|max:2048',
             'certification' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
-            'is_verified' => 'required|boolean',
+            'is_verified' => 'required_if:role,service_provider|nullable|boolean',
             'is_active' => 'required|boolean',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
         ]);
+
+        $isVerified = $request->role === 'service_provider' ? (bool)$request->is_verified : true;
 
         $data = [
             'name' => $request->name,
@@ -116,10 +116,10 @@ class AdminController extends Controller
             'provider_type' => $request->role === 'service_provider' ? $request->provider_type : null,
             'phone' => $request->phone,
             'bio' => $request->bio,
-            'is_verified' => $request->is_verified,
+            'is_verified' => $isVerified,
             'is_active' => $request->is_active,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
+            'latitude' => null,
+            'longitude' => null,
         ];
 
         if ($request->filled('password')) {
@@ -215,5 +215,84 @@ class AdminController extends Controller
         }
         $order->update(['status' => 'cancelled']);
         return back()->with('success', "Order #{$order->id} ditolak dan stok dikembalikan.");
+    }
+
+    public function createSchedule()
+    {
+        $providers = User::where('role', 'service_provider')->whereIn('provider_type', ['groomer', 'veterinarian'])->get();
+        return view('admin.schedules.create', compact('providers'));
+    }
+
+    public function storeSchedule(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'day_of_week' => 'required|integer|between:0,6',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'is_available' => 'required|boolean',
+        ]);
+
+        if ($request->start_time < '07:00' || $request->end_time > '17:00') {
+            return back()->withErrors(['start_time' => 'Jadwal kerja harus berada di antara jam 07:00 dan 17:00.'])->withInput();
+        }
+
+        \App\Models\ProviderSchedule::create([
+            'user_id' => $request->user_id,
+            'day_of_week' => $request->day_of_week,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'is_available' => $request->is_available,
+        ]);
+
+        return redirect()->route('admin.services.index')->with('success', 'Jadwal tenaga klinik berhasil ditambahkan!');
+    }
+
+    public function editSchedule(\App\Models\ProviderSchedule $schedule)
+    {
+        $providers = User::where('role', 'service_provider')->whereIn('provider_type', ['groomer', 'veterinarian'])->get();
+        return view('admin.schedules.edit', compact('schedule', 'providers'));
+    }
+
+    public function updateSchedule(Request $request, \App\Models\ProviderSchedule $schedule)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'day_of_week' => 'required|integer|between:0,6',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'is_available' => 'required|boolean',
+        ]);
+
+        if ($request->start_time < '07:00' || $request->end_time > '17:00') {
+            return back()->withErrors(['start_time' => 'Jadwal kerja harus berada di antara jam 07:00 dan 17:00.'])->withInput();
+        }
+
+        $schedule->update([
+            'user_id' => $request->user_id,
+            'day_of_week' => $request->day_of_week,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'is_available' => $request->is_available,
+        ]);
+
+        return redirect()->route('admin.services.index')->with('success', 'Jadwal tenaga klinik berhasil diperbarui!');
+    }
+
+    public function destroySchedule(\App\Models\ProviderSchedule $schedule)
+    {
+        $schedule->delete();
+        return redirect()->route('admin.services.index')->with('success', 'Jadwal tenaga klinik berhasil dihapus!');
+    }
+
+    public function bookingsIndex()
+    {
+        $bookings = \App\Models\Booking::where('status', 'completed')
+            ->with(['petOwner', 'provider', 'service', 'pet', 'review'])
+            ->orderBy('booking_date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->get();
+            
+        return view('admin.bookings.index', compact('bookings'));
     }
 }

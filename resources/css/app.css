@@ -282,11 +282,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .summary-widget .value {
-    font-size: 2.25rem;
+    font-size: 2rem;
     font-weight: 700;
-    line-height: 1;
+    line-height: 1.1;
     color: var(--primary);
     margin-bottom: 4px;
+    letter-spacing: -0.02em;
+}
+
+.summary-widget .value.value-long {
+    font-size: 1.55rem;
+}
+
+@media (max-width: 768px) {
+    .summary-widget .value {
+        font-size: 1.6rem;
+    }
+    .summary-widget .value.value-long {
+        font-size: 1.2rem;
+    }
 }
 
 html {
@@ -337,4 +351,76 @@ html {
 .scrollbar-hidden {
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+/* Custom stat card backgrounds with gorgeous subtle warm gradients */
+.widget-users {
+    background: linear-gradient(135deg, #ffffff 0%, #FAF6F0 100%) !important;
+    border-left: 4.5px solid var(--muted) !important;
+}
+.widget-bookings {
+    background: linear-gradient(135deg, #ffffff 0%, #fbebe5 100%) !important;
+    border-left: 4.5px solid #d48c6a !important;
+}
+.widget-income {
+    background: linear-gradient(135deg, #ffffff 0%, #fff9f3 100%) !important;
+    border-left: 4.5px solid #b06948 !important;
+}
+.widget-active {
+    background: linear-gradient(135deg, #ffffff 0%, #ecf3ef 100%) !important;
+    border-left: 4.5px solid #759a83 !important;
+}
+
+/* Sleek custom scrollbars for responsive tables */
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+.table-responsive::-webkit-scrollbar-track {
+    background: #FAF6F0;
+    border-radius: 99px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #eadacb;
+    border-radius: 99px;
+    transition: background-color 0.2s;
+}
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #d48c6a;
+}
+.table-responsive {
+    scrollbar-width: thin;
+    scrollbar-color: #eadacb #FAF6F0;
+}
+
+/* Premium Modern Table Styles */
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-hover-bg: rgba(249, 242, 235, 0.4);
+    border-color: #eadacb !important;
+    margin-bottom: 0;
+}
+
+.table thead th {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border-bottom: 2.5px solid #eadacb !important;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.table tbody td {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f2ebdf !important;
+    font-size: 0.88rem;
+    color: var(--ink);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: 0 !important;
 }

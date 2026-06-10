@@ -1,15 +1,15 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
-@section('content')
+@section('dashboard_content')
     <div class="py-2" style="max-width: 700px; margin: 0 auto;">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-            <div>
-                <h1 class="h3 mb-1" style="font-family: 'Fraunces', serif; font-weight: 700; color: var(--ink);">🏥 Detail Rekam Medis</h1>
-                <div class="small text-muted" style="font-family: 'Outfit', sans-serif;">Pemeriksaan kesehatan terperinci untuk hewan peliharaan Anda.</div>
-            </div>
-            <div>
-                <a class="pet-btn pet-btn-outline" href="{{ url()->previous() ?: route('medical-records.index') }}">← Kembali</a>
-            </div>
+             <div>
+                 <h1 class="h3 mb-1" style="font-family: 'Fraunces', serif; font-weight: 700; color: var(--ink);">🏥 Detail Rekam Medis</h1>
+                 <div class="small text-muted" style="font-family: 'Outfit', sans-serif;">Pemeriksaan kesehatan terperinci untuk hewan peliharaan Anda.</div>
+             </div>
+             <div>
+                 <a class="pet-btn pet-btn-outline" href="{{ url()->previous() ?: route('medical-records.index') }}">← Kembali</a>
+             </div>
         </div>
 
         <div class="pet-card p-4">
@@ -19,7 +19,7 @@
                     <p class="small text-muted mb-0">Spesies: {{ $record->pet->type ?? '-' }}</p>
                 </div>
                 <div class="text-end">
-                    <span class="pet-badge pet-badge-sage">{{ $record->visit_date ? $record->visit_date : now()->toDateString() }}</span>
+                    <span class="pet-badge pet-badge-sage">{{ $record->visit_date ? $record->visit_date->format('d M Y') : now()->format('d M Y') }}</span>
                 </div>
             </div>
 

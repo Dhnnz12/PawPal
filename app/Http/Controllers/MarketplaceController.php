@@ -73,12 +73,18 @@ class MarketplaceController extends Controller
     {
         $request->validate([
             'shipping_address' => 'required|string',
+            'payment_proof' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120',
         ]);
 
         $cart = session()->get('cart', []);
 
         if (empty($cart)) {
             return redirect()->route('marketplace.index')->withErrors(['cart' => 'Keranjang belanja Anda kosong.']);
+        }
+
+        $proofPath = null;
+        if ($request->hasFile('payment_proof')) {
+            $proofPath = $request->file('payment_proof')->store('payment_proofs', 'public');
         }
 
         // Use transactional safety
@@ -94,6 +100,7 @@ class MarketplaceController extends Controller
                 'status' => 'pending',
                 'total_amount' => $totalAmount,
                 'shipping_address' => $request->shipping_address,
+                'payment_proof' => $proofPath,
             ]);
 
             foreach ($cart as $productId => $details) {

@@ -31,6 +31,31 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard router - smart redirect based on role
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/pets/{pet}', [PetController::class, 'show'])->name('pets.show');
+
+    // Orders details & invoices (both admin and the actual order owner can access)
+    Route::get('/orders/{order}', function(\App\Models\Order $order) {
+        if (auth()->user()->role !== 'admin' && auth()->id() !== $order->pet_owner_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        return view('orders.show', ['order' => $order]);
+    })->name('orders.show');
+
+    Route::get('/orders/{order}/invoice', function(\App\Models\Order $order) {
+        if (auth()->user()->role !== 'admin' && auth()->id() !== $order->pet_owner_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        return view('orders.invoice', ['order' => $order]);
+    })->name('orders.invoice');
+
+    Route::get('/bookings/{booking}', function(\App\Models\Booking $booking) {
+        if (auth()->user()->role !== 'admin' && auth()->id() !== $booking->pet_owner_id && auth()->id() !== $booking->provider_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        return view('bookings.show', ['booking' => $booking]);
+    })->name('bookings.show');
+
+    // Booking status updates (both admin and the actual booking owner can access)
+    Route::post('/booking/{booking}/status', [BookingController::class, 'updateStatus'])->name('booking.updateStatus');
 });
 
 // Pet Owner Routes - Protected for Pet Owner only
@@ -58,15 +83,11 @@ Route::middleware(['auth', 'pet_owner'])->group(function () {
     Route::get('/booking/search', [BookingController::class, 'search'])->name('booking.search');
     Route::get('/booking/create/{provider}', [BookingController::class, 'showCreate'])->name('booking.create');
     Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
-    Route::post('/booking/{booking}/status', [BookingController::class, 'updateStatus'])->name('booking.updateStatus');
 
     // Backward-compatible aliases
     Route::get('/owner/search-providers', [BookingController::class, 'search'])->name('owner.search_providers');
 
-    // Bookings show/detail
-    Route::get('/bookings/{booking}', function(\App\Models\Booking $booking) {
-        return view('bookings.show', ['booking' => $booking]);
-    })->name('bookings.show');
+
 
     // Reviews
     Route::get('/reviews/create/{booking}', function(\App\Models\Booking $booking) {
@@ -91,22 +112,21 @@ Route::middleware(['auth', 'pet_owner'])->group(function () {
     Route::get('/profile/edit', function() {
         return view('profile.edit');
     })->name('profile.edit');
+    Route::put('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
 
     // Bookings History
     Route::get('/bookings', function() {
-        $bookings = \App\Models\Booking::where('user_id', Auth()->id())->with('service', 'provider', 'pet')->get();
+        $bookings = \App\Models\Booking::where('pet_owner_id', Auth()->id())->with('service', 'provider', 'pet')->get();
         return view('bookings.index', ['bookings' => $bookings]);
     })->name('bookings.index');
 
     // Orders/Transactions
     Route::get('/orders', function() {
-        $orders = \App\Models\Order::where('user_id', Auth()->id())->with('items', 'items.product', 'items.product.seller')->get();
+        $orders = \App\Models\Order::where('pet_owner_id', Auth()->id())->with('items', 'items.product', 'items.product.seller')->get();
         return view('orders.index', ['orders' => $orders]);
     })->name('orders.index');
 
-    Route::get('/orders/{order}', function(\App\Models\Order $order) {
-        return view('orders.show', ['order' => $order]);
-    })->name('orders.show');
+
 });
 
 // Service Provider Routes - Protected for Service Providers only (dashboard)
@@ -134,9 +154,19 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
     Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
 
+    // Products management CRUD
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+    // Booking completion forms
+    Route::get('/bookings/{booking}/complete', [BookingController::class, 'showCompleteForm'])->name('admin.bookings.completeForm');
+    Route::post('/bookings/{booking}/complete', [BookingController::class, 'submitComplete'])->name('admin.bookings.submitComplete');
+
     // Admin pages (prefix)
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
+        Route::get('/bookings', [AdminController::class, 'bookingsIndex'])->name('admin.bookings.index');
 
         Route::get('/users', [AdminController::class, 'usersIndex'])->name('admin.users.index');
         Route::get('/users/create', [AdminController::class, 'createUser'])->name('admin.users.create');
@@ -194,6 +224,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
         Route::post('/transactions/{order}/approve', [AdminController::class, 'approveTransaction'])->name('admin.transactions.approve');
         Route::post('/transactions/{order}/reject', [AdminController::class, 'rejectTransaction'])->name('admin.transactions.reject');
+
+        // Admin Schedule Management
+        Route::get('/schedules/create', [AdminController::class, 'createSchedule'])->name('admin.schedules.create');
+        Route::post('/schedules', [AdminController::class, 'storeSchedule'])->name('admin.schedules.store');
+        Route::get('/schedules/{schedule}/edit', [AdminController::class, 'editSchedule'])->name('admin.schedules.edit');
+        Route::put('/schedules/{schedule}', [AdminController::class, 'updateSchedule'])->name('admin.schedules.update');
+        Route::delete('/schedules/{schedule}', [AdminController::class, 'destroySchedule'])->name('admin.schedules.destroy');
     });
 
     // Medical Records detail view
@@ -201,10 +238,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('medical-records.show', ['record' => $record]);
     })->name('medical-records.show');
 
-    // Invoice print
-    Route::get('/orders/{order}/invoice', function(\App\Models\Order $order) {
-        return view('orders.invoice', ['order' => $order]);
-    })->name('orders.invoice');
+
 
     // Admin verify provider
     Route::post('/admin/verify/{provider}', [AdminController::class, 'verifyProvider'])->name('admin.verifyProvider');

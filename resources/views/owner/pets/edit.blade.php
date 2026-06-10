@@ -8,7 +8,7 @@
                 <div class="small text-muted" style="font-family: 'Outfit', sans-serif;">Perbarui informasi hewan peliharaan Anda.</div>
             </div>
             <div class="d-flex gap-2">
-                <a class="pet-btn pet-btn-outline" href="{{ route('pets.show', $pet) }}">⬅️ Kembali</a>
+                <a class="pet-btn pet-btn-outline" href="{{ auth()->user()->isAdmin() ? route('admin.pets.index') : route('pets.show', $pet) }}">⬅️ Kembali</a>
             </div>
         </div>
 
@@ -57,6 +57,16 @@
                 <div class="mt-4">
                     <button class="pet-btn pet-btn-primary w-100 py-3" type="submit">Simpan Perubahan ✅</button>
                 </div>
+            </form>
+        </div>
+
+        <div class="pet-card p-4 mt-4" style="border: 1.5px solid #f5d7cb; background-color: #fcece6; border-radius: 22px;">
+            <h3 class="h6 fw-bold text-danger mb-2">⚠️ Zona Bahaya: Hapus Profil Hewan</h3>
+            <p class="small text-muted mb-3">Semua data rekam medis, riwayat booking, dan detail informasi mengenai hewan ini akan dihapus secara permanen.</p>
+            <form method="POST" action="{{ route('pets.destroy', $pet) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus profil hewan ini secara permanen? Tindakan ini tidak dapat dibatalkan.')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="pet-btn pet-btn-danger py-2 px-3">Hapus Profil Hewan 🗑️</button>
             </form>
         </div>
     </div>

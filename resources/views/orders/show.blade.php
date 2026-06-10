@@ -8,7 +8,11 @@
                 <div class="small text-muted" style="font-family: 'Outfit', sans-serif;">Invoice dan riwayat pembayaran pesanan marketplace Anda</div>
             </div>
             <div>
-                <a class="pet-btn pet-btn-outline" href="{{ route('orders.index') }}">← Kembali</a>
+                @if(Auth::user()->isAdmin())
+                    <a class="pet-btn pet-btn-outline" href="{{ route('admin.transactions.index') }}">← Kembali</a>
+                @else
+                    <a class="pet-btn pet-btn-outline" href="{{ route('orders.index') }}">← Kembali</a>
+                @endif
             </div>
         </div>
 
@@ -101,17 +105,29 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="small fw-semibold" style="color: var(--ink);">Status</span>
                         @if($order->status === 'pending')
-                            <span class="pet-badge">⏳ Menunggu Pembayaran</span>
+                            <span class="pet-badge">⏳ Menunggu Verifikasi</span>
                         @elseif($order->status === 'paid')
                             <span class="pet-badge pet-badge-peach">✓ Sudah Dibayar</span>
                         @elseif($order->status === 'completed')
                             <span class="pet-badge pet-badge-sage">✓ Selesai</span>
+                        @elseif($order->status === 'cancelled')
+                            <span class="pet-badge" style="background-color: #fcece6; color: #c06c48;">❌ Dibatalkan</span>
+                        @else
+                            <span class="pet-badge">{{ ucfirst($order->status) }}</span>
                         @endif
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="small fw-semibold" style="color: var(--ink);">Metode</span>
-                        <span class="small" style="color: var(--ink);">💳 Simulasi Pembayaran</span>
+                        <span class="small" style="color: var(--ink);">Transfer Bank BCA (689067)</span>
                     </div>
+                    @if($order->payment_proof)
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small fw-semibold" style="color: var(--ink);">Bukti Transfer</span>
+                            <a href="{{ asset('storage/' . $order->payment_proof) }}" target="_blank" class="small fw-bold text-decoration-none" style="color: var(--primary);">
+                                📄 Lihat Bukti Transfer
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -127,10 +143,11 @@
             <hr style="border-color: var(--color-warm-border);">
             
             <div class="d-flex gap-2 mt-4">
-                @if($order->status === 'pending')
-                    <a href="{{ route('marketplace.checkout') }}" class="pet-btn pet-btn-primary flex-grow-1 py-2">💳 Selesaikan Pembayaran</a>
+                @if(Auth::user()->isAdmin())
+                    <a href="{{ route('admin.transactions.index') }}" class="pet-btn pet-btn-outline flex-grow-1 py-2">← Kembali ke Daftar</a>
+                @else
+                    <a href="{{ route('orders.index') }}" class="pet-btn pet-btn-outline flex-grow-1 py-2">← Kembali ke Daftar</a>
                 @endif
-                <a href="{{ route('orders.index') }}" class="pet-btn pet-btn-outline flex-grow-1 py-2">← Kembali ke Daftar</a>
             </div>
         </div>
     </div>

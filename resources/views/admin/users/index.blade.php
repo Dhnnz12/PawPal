@@ -42,17 +42,9 @@
                class="pet-btn py-2 px-3 fs-6 {{ $roleFilter === 'service_provider' && $typeFilter === 'groomer' ? 'pet-btn-secondary' : 'pet-btn-outline' }}" style="font-size: 0.85rem;">
                 ✨ Groomer
             </a>
-            <a href="{{ route('admin.users.index', ['role' => 'service_provider', 'type' => 'pet_sitter']) }}" 
-               class="pet-btn py-2 px-3 fs-6 {{ $roleFilter === 'service_provider' && $typeFilter === 'pet_sitter' ? 'pet-btn-secondary' : 'pet-btn-outline' }}" style="font-size: 0.85rem;">
-                🏡 Pet Sitter
-            </a>
             <a href="{{ route('admin.users.index', ['role' => 'service_provider', 'type' => 'veterinarian']) }}" 
                class="pet-btn py-2 px-3 fs-6 {{ $roleFilter === 'service_provider' && $typeFilter === 'veterinarian' ? 'pet-btn-secondary' : 'pet-btn-outline' }}" style="font-size: 0.85rem;">
                 🩺 Dokter Hewan
-            </a>
-            <a href="{{ route('admin.users.index', ['role' => 'service_provider', 'type' => 'seller']) }}" 
-               class="pet-btn py-2 px-3 fs-6 {{ $roleFilter === 'service_provider' && $typeFilter === 'seller' ? 'pet-btn-secondary' : 'pet-btn-outline' }}" style="font-size: 0.85rem;">
-                🛒 Seller
             </a>
             <a href="{{ route('admin.users.index', ['role' => 'admin']) }}" 
                class="pet-btn py-2 px-3 fs-6 {{ $roleFilter === 'admin' ? 'pet-btn-secondary' : 'pet-btn-outline' }}" style="font-size: 0.85rem;">
@@ -114,10 +106,6 @@
                                         <span class="pet-badge pet-badge-sage">🩺 Dokter Hewan</span>
                                     @elseif($user->isGroomer())
                                         <span class="pet-badge pet-badge-sage">✨ Groomer</span>
-                                    @elseif($user->isPetSitter())
-                                        <span class="pet-badge pet-badge-sage">🏡 Pet Sitter</span>
-                                    @elseif($user->isSeller())
-                                        <span class="pet-badge pet-badge-sage">🛒 Seller</span>
                                     @elseif($user->isAdmin())
                                         <span class="pet-badge" style="background-color: #e5e7eb; color: #374151; border-color: #d1d5db;">🛡️ Admin</span>
                                     @else

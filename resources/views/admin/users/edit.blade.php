@@ -41,13 +41,13 @@
                     </div>
 
                     {{-- 2. Password & Telepon --}}
-                    <div class="col-12 col-md-6 d-flex flex-column">
+                    <div class="col-12 col-md-6 d-flex flex-column" id="password_container">
                         <label for="password" class="small fw-semibold text-muted mb-2">Kata Sandi (Password)</label>
                         <input type="password" name="password" id="password" class="pet-input" placeholder="Biarkan kosong jika tidak diubah">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-column">
-                        <label for="phone" class="small fw-semibold text-muted mb-2">Nomor Telepon</label>
-                        <input type="text" name="phone" id="phone" class="pet-input" placeholder="Contoh: 081234567890" value="{{ old('phone', $user->phone) }}">
+                        <label for="phone" class="small fw-semibold text-muted mb-2">Nomor Telepon <span class="text-danger">*</span></label>
+                        <input type="text" name="phone" id="phone" class="pet-input" placeholder="Contoh: 081234567890" value="{{ old('phone', $user->phone) }}" required>
                     </div>
 
                     {{-- 3. Bio --}}
@@ -61,7 +61,7 @@
                         <label for="role" class="small fw-semibold text-muted mb-2">Peran Pengguna (Role) <span class="text-danger">*</span></label>
                         <select name="role" id="role" class="pet-input" required onchange="toggleRoleFields(this.value)">
                             <option value="pet_owner" {{ old('role', $user->role) === 'pet_owner' ? 'selected' : '' }}>🐾 Pet Owner</option>
-                            <option value="service_provider" {{ old('role', $user->role) === 'service_provider' ? 'selected' : '' }}>🛠️ Service Provider</option>
+                            <option value="service_provider" {{ old('role', $user->role) === 'service_provider' ? 'selected' : '' }}>🛠️ Tenaga Klinik</option>
                             <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>🛡️ Admin</option>
                         </select>
                     </div>
@@ -84,15 +84,13 @@
                     {{-- Dynamically Shown: Service Provider Fields --}}
                     <div class="col-12" id="provider_fields" style="display: none;">
                         <div class="p-3 mb-2 rounded-4" style="background-color: var(--bg-peach); border: 1.5px solid #eadacb;">
-                            <h3 class="h6 mb-3 fw-bold" style="color: var(--ink);">🛠️ Detail Penyedia Layanan</h3>
+                            <h3 class="h6 mb-3 fw-bold" style="color: var(--ink);">🛠️ Form Wajib Khusus Tenaga Klinik</h3>
                             <div class="row g-3">
                                 <div class="col-12 col-md-6 d-flex flex-column">
                                     <label for="provider_type" class="small fw-semibold text-muted mb-2">Tipe Layanan <span class="text-danger">*</span></label>
                                     <select name="provider_type" id="provider_type" class="pet-input" onchange="toggleCertField(this.value)">
                                         <option value="groomer" {{ old('provider_type', $user->provider_type) === 'groomer' ? 'selected' : '' }}>✨ Groomer (Grooming)</option>
-                                        <option value="pet_sitter" {{ old('provider_type', $user->provider_type) === 'pet_sitter' ? 'selected' : '' }}>🏡 Pet Sitter</option>
                                         <option value="veterinarian" {{ old('provider_type', $user->provider_type) === 'veterinarian' ? 'selected' : '' }}>🩺 Dokter Hewan</option>
-                                        <option value="seller" {{ old('provider_type', $user->provider_type) === 'seller' ? 'selected' : '' }}>🛒 Seller (Toko)</option>
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-6 d-flex flex-column" id="certification_field" style="display: none;">
@@ -108,26 +106,18 @@
                                     <div class="small text-muted mt-1">Format: PDF, JPG, PNG (maks. 5MB).</div>
                                 </div>
                                 <div class="col-12 col-md-6 d-flex flex-column">
-                                    <label for="latitude" class="small fw-semibold text-muted mb-2">Garis Lintang (Latitude)</label>
-                                    <input type="number" step="any" name="latitude" id="latitude" class="pet-input" placeholder="Contoh: -6.2735" value="{{ old('latitude', $user->latitude) }}">
-                                </div>
-                                <div class="col-12 col-md-6 d-flex flex-column">
-                                    <label for="longitude" class="small fw-semibold text-muted mb-2">Garis Bujur (Longitude)</label>
-                                    <input type="number" step="any" name="longitude" id="longitude" class="pet-input" placeholder="Contoh: 106.8205" value="{{ old('longitude', $user->longitude) }}">
+                                    <label for="is_verified" class="small fw-semibold text-muted mb-2">Status Verifikasi <span class="text-danger">*</span></label>
+                                    <select name="is_verified" id="is_verified" class="pet-input">
+                                        <option value="1" {{ old('is_verified', $user->is_verified ? '1' : '0') === '1' ? 'selected' : '' }}>Verified (Terverifikasi)</option>
+                                        <option value="0" {{ old('is_verified', $user->is_verified ? '1' : '0') === '0' ? 'selected' : '' }}>Unverified (Belum Terverifikasi)</option>
+                                    </select>
+                                    <div class="small text-muted mt-1">Tenaga klinik memerlukan verifikasi admin untuk menerima booking.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- 6. Statuses: Verified & Active --}}
-                    <div class="col-12 col-md-6 d-flex flex-column">
-                        <label for="is_verified" class="small fw-semibold text-muted mb-2">Status Verifikasi <span class="text-danger">*</span></label>
-                        <select name="is_verified" id="is_verified" class="pet-input" required>
-                            <option value="1" {{ old('is_verified', $user->is_verified ? '1' : '0') === '1' ? 'selected' : '' }}>Verified (Terverifikasi)</option>
-                            <option value="0" {{ old('is_verified', $user->is_verified ? '1' : '0') === '0' ? 'selected' : '' }}>Unverified (Belum Terverifikasi)</option>
-                        </select>
-                        <div class="small text-muted mt-1">Penyedia layanan tertentu wajib berstatus Terverifikasi untuk menerima pemesanan.</div>
-                    </div>
+                    {{-- 6. Statuses: Active Only for all roles --}}
                     <div class="col-12 col-md-6 d-flex flex-column">
                         <label for="is_active" class="small fw-semibold text-muted mb-2">Status Keaktifan Akun <span class="text-danger">*</span></label>
                         <select name="is_active" id="is_active" class="pet-input" required>
@@ -150,18 +140,27 @@
     <script>
         function toggleRoleFields(role) {
             const providerFields = document.getElementById('provider_fields');
+            const passwordContainer = document.getElementById('password_container');
             if (role === 'service_provider') {
                 providerFields.style.display = 'block';
+                if (passwordContainer) {
+                    passwordContainer.classList.add('d-none');
+                    passwordContainer.classList.remove('d-flex');
+                }
                 // Trigger type change check
                 toggleCertField(document.getElementById('provider_type').value);
             } else {
                 providerFields.style.display = 'none';
+                if (passwordContainer) {
+                    passwordContainer.classList.remove('d-none');
+                    passwordContainer.classList.add('d-flex');
+                }
             }
         }
 
         function toggleCertField(type) {
             const certField = document.getElementById('certification_field');
-            if (type === 'veterinarian' || type === 'seller') {
+            if (type === 'veterinarian') {
                 certField.style.display = 'block';
             } else {
                 certField.style.display = 'none';

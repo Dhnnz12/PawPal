@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Admin
-        User::create([
+        $admin = User::create([
             'name' => 'Administrator',
             'email' => 'admin@petcare.com',
             'password' => Hash::make('password'),
@@ -83,39 +83,22 @@ class DatabaseSeeder extends Seeder
             'is_primary' => false,
         ]);
 
-        // 3. Service Provider - Groomer
+        // 3. Service Provider - Groomer (Clinic Staff)
         $groomer = User::create([
-            'name' => 'Indra Grooming Keliling',
+            'name' => 'Indra Grooming',
             'email' => 'provider@petcare.com',
             'password' => Hash::make('password'),
             'role' => 'service_provider',
             'provider_type' => 'groomer',
             'phone' => '08987654321',
-            'bio' => 'Groomer profesional berpengalaman 5 tahun untuk anjing dan kucing galak.',
+            'bio' => 'Groomer profesional berpengalaman 5 tahun untuk anjing dan kucing.',
             'avatar' => 'avatars/groomer-indra.svg',
             'is_verified' => true,
             'latitude' => -6.2615,
             'longitude' => 106.8105,
         ]);
 
-        // Services for Groomer
-        Service::create([
-            'provider_id' => $groomer->id,
-            'name' => 'Grooming Lengkap Kucing/Anjing Kecil',
-            'description' => 'Mandi shampoo anti-kutu, potong kuku, bersihkan telinga, blow dry, parfum.',
-            'price' => 150000,
-            'duration_minutes' => 90,
-        ]);
-
-        Service::create([
-            'provider_id' => $groomer->id,
-            'name' => 'Mandi Sehat Basah',
-            'description' => 'Mandi bersih air hangat + potong kuku tanpa cukur bulu.',
-            'price' => 90000,
-            'duration_minutes' => 45,
-        ]);
-
-        // 4. Service Provider - Veterinarian
+        // 4. Service Provider - Veterinarian (Clinic Staff)
         $vet = User::create([
             'name' => 'Drh. Sarah Wijaya',
             'email' => 'doctor@petcare.com',
@@ -131,39 +114,28 @@ class DatabaseSeeder extends Seeder
             'longitude' => 106.8305,
         ]);
 
-        // Services for Vet
+        // 5. Clinic-wide Services (Only 2)
         Service::create([
-            'provider_id' => $vet->id,
-            'name' => 'Kunjungan & Pemeriksaan Umum',
-            'description' => 'Pemeriksaan fisik lengkap hewan di rumah owner.',
+            'provider_id' => null,
+            'provider_type' => 'veterinarian',
+            'name' => 'Pemeriksaan dokter',
+            'description' => 'Pemeriksaan fisik lengkap hewan oleh dokter spesialis hewan klinik.',
             'price' => 120000,
             'duration_minutes' => 60,
         ]);
 
         Service::create([
-            'provider_id' => $vet->id,
-            'name' => 'Vaksinasi Kucing F3 / F4 + Buku Vaksin',
-            'description' => 'Pemberian vaksin inti lengkap dengan pemeriksaan suhu.',
-            'price' => 250000,
-            'duration_minutes' => 30,
+            'provider_id' => null,
+            'provider_type' => 'groomer',
+            'name' => 'Groming',
+            'description' => 'Mandi bersih air hangat, potong kuku, pembersihan telinga, blow dry, dan parfum.',
+            'price' => 90000,
+            'duration_minutes' => 60,
         ]);
 
-        // 5. Service Provider - Seller
-        $seller = User::create([
-            'name' => 'Pet Shop Lestari',
-            'email' => 'seller@petcare.com',
-            'password' => Hash::make('password'),
-            'role' => 'service_provider',
-            'provider_type' => 'seller',
-            'phone' => '081344445555',
-            'bio' => 'Menyediakan kebutuhan nutrisi premium dan mainan edukatif hewan.',
-            'avatar' => 'avatars/petshop-lestari.svg',
-            'is_verified' => true,
-        ]);
-
-        // Products for Seller
+        // Products for Clinic (Admin)
         Product::create([
-            'seller_id' => $seller->id,
+            'seller_id' => $admin->id,
             'name' => 'Makanan Kucing Premium Royal Canin 2kg',
             'description' => 'Nutrisi lengkap khusus pertumbuhan bulu dan daya tahan tubuh.',
             'price' => 280000,
@@ -172,7 +144,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Product::create([
-            'seller_id' => $seller->id,
+            'seller_id' => $admin->id,
             'name' => 'Shampoo Hewan FurryMagic 250ml',
             'description' => 'Mencegah ketombe, melembutkan bulu kasar, wangi lavender.',
             'price' => 65000,
@@ -181,7 +153,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Product::create([
-            'seller_id' => $seller->id,
+            'seller_id' => $admin->id,
             'name' => 'Tempat Tidur Kucing Empuk CozyNest',
             'description' => 'Diameter 40cm, bahan beludru hangat dan mudah dicuci.',
             'price' => 110000,
@@ -203,14 +175,14 @@ class DatabaseSeeder extends Seeder
             'is_verified' => false,
         ]);
 
-        // Add schedules for Groomer and Vet (Monday to Friday, 9:00 - 17:00)
+        // Add schedules for Groomer and Vet (Monday to Friday, 07:00 - 17:00)
         $providers = [$groomer->id, $vet->id];
         foreach ($providers as $provId) {
             for ($day = 1; $day <= 5; $day++) {
                 ProviderSchedule::create([
                     'user_id' => $provId,
                     'day_of_week' => $day,
-                    'start_time' => '09:00',
+                    'start_time' => '07:00',
                     'end_time' => '17:00',
                     'is_available' => true,
                 ]);

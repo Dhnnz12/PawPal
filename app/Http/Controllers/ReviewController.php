@@ -38,6 +38,6 @@ class ReviewController extends Controller
             'comment' => $request->comment,
         ]);
 
-        return back()->with('success', 'Ulasan berhasil dikirim!');
+        return redirect()->route('bookings.index')->with('success', 'Ulasan berhasil dikirim!');
     }
 }

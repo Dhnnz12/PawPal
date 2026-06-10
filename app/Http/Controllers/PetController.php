@@ -30,7 +30,7 @@ class PetController extends Controller
 
     public function edit(Pet $pet)
     {
-        if ($pet->user_id !== Auth::id()) {
+        if ($pet->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
             abort(403);
         }
         return view('owner.pets.edit', compact('pet'));
@@ -54,7 +54,7 @@ class PetController extends Controller
         }
 
         Pet::create([
-            'user_id' => Auth::id(),
+            'user_id' => Auth::user()->isAdmin() ? (Auth::id()) : Auth::id(), // Owner is always current auth for pet owners
             'name' => $request->name,
             'type' => $request->type,
             'breed' => $request->breed,
@@ -64,13 +64,17 @@ class PetController extends Controller
             'health_notes' => $request->health_notes,
         ]);
 
-        return back()->with('success', 'Profil hewan berhasil ditambahkan!');
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.pets.index')->with('success', 'Profil hewan berhasil ditambahkan!');
+        }
+
+        return redirect()->route('pets.index')->with('success', 'Profil hewan berhasil ditambahkan!');
     }
 
     public function update(Request $request, Pet $pet)
     {
-        // Ensure owner owns the pet
-        if ($pet->user_id !== Auth::id()) {
+        // Ensure owner owns the pet, or is admin
+        if ($pet->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
             abort(403);
         }
 
@@ -84,29 +88,35 @@ class PetController extends Controller
             'health_notes' => 'nullable|string',
         ]);
 
-        if ($request->hasFile('photo')) {
-            // Delete old photo if exists
-            if ($pet->photo) {
-                Storage::disk('public')->delete($pet->photo);
-            }
-            $pet->photo = $request->file('photo')->store('pets', 'public');
-        }
-
-        $pet->update([
+        $data = [
             'name' => $request->name,
             'type' => $request->type,
             'breed' => $request->breed,
             'age' => $request->age,
             'weight' => $request->weight,
             'health_notes' => $request->health_notes,
-        ]);
+        ];
 
-        return back()->with('success', 'Profil hewan berhasil diperbarui!');
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($pet->photo) {
+                Storage::disk('public')->delete($pet->photo);
+            }
+            $data['photo'] = $request->file('photo')->store('pets', 'public');
+        }
+
+        $pet->update($data);
+
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.pets.index')->with('success', 'Profil hewan berhasil diperbarui!');
+        }
+
+        return redirect()->route('pets.index')->with('success', 'Profil hewan berhasil diperbarui!');
     }
 
     public function destroy(Pet $pet)
     {
-        if ($pet->user_id !== Auth::id()) {
+        if ($pet->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
             abort(403);
         }
 
@@ -116,6 +126,10 @@ class PetController extends Controller
 
         $pet->delete();
 
-        return back()->with('success', 'Profil hewan berhasil dihapus!');
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.pets.index')->with('success', 'Profil hewan berhasil dihapus!');
+        }
+
+        return redirect()->route('pets.index')->with('success', 'Profil hewan berhasil dihapus!');
     }
 }

@@ -1,6 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
-@section('content')
+@section('dashboard_content')
     <div class="py-2">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 border-bottom pb-3">
             <div>
@@ -9,7 +9,7 @@
                 </h1>
                 <div class="small text-muted">Isi detail layanan yang akan ditampilkan di katalog.</div>
             </div>
-            <a class="pet-btn pet-btn-outline" href="{{ route('services.index') }}">← Kembali</a>
+            <a class="pet-btn pet-btn-outline" href="{{ route('admin.services.index') }}">← Kembali</a>
         </div>
 
         <div class="pet-card p-4" style="border-radius: 22px; border: 1.5px solid var(--color-warm-border);">
@@ -32,6 +32,18 @@
                             <input type="text" name="name" class="form-control pet-input" value="{{ old('name') }}" placeholder="Contoh: Grooming Medium" required>
                         </div>
                         @error('name')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small text-muted">Tipe Tenaga Klinik <span class="text-danger">*</span></label>
+                        <select name="provider_type" class="form-control pet-input" required>
+                            <option value="" disabled selected>Pilih Tipe Tenaga Klinik</option>
+                            <option value="groomer" {{ old('provider_type') === 'groomer' ? 'selected' : '' }}>✨ Groomer (Grooming)</option>
+                            <option value="veterinarian" {{ old('provider_type') === 'veterinarian' ? 'selected' : '' }}>🩺 Dokter Hewan</option>
+                        </select>
+                        @error('provider_type')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
@@ -68,7 +80,7 @@
 
                     <div class="col-12">
                         <div class="d-flex gap-2 justify-content-end mt-1">
-                            <a class="pet-btn pet-btn-outline" href="{{ route('services.index') }}">
+                            <a class="pet-btn pet-btn-outline" href="{{ route('admin.services.index') }}">
                                 Batal
                             </a>
                             <button type="submit" class="pet-btn pet-btn-primary" style="padding-left: 18px; padding-right: 18px;">

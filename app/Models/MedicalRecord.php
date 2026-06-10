@@ -16,8 +16,13 @@ class MedicalRecord extends Model
         'visit_date',
         'diagnosis',
         'treatment',
+        'recommendation',
         'notes',
         'pdf_path',
+    ];
+
+    protected $casts = [
+        'visit_date' => 'date',
     ];
 
     public function pet()

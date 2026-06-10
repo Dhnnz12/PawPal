@@ -4,11 +4,11 @@
     <div class="py-2" style="max-width: 700px; margin: 0 auto;">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
             <div>
-                <h1 class="h3 mb-1" style="font-family: 'Fraunces', serif; font-weight: 700; color: var(--ink);">🗓️ Detail Pemesanan Layanan</h1>
-                <div class="small text-muted" style="font-family: 'Outfit', sans-serif;">Informasi lengkap pemesanan layanan Anda</div>
+                <h1 class="h3 mb-1" style="font-family: 'Fraunces', serif; font-weight: 700; color: var(--ink);">🗓️ Detail Booking Layanan</h1>
+                <div class="small text-muted" style="font-family: 'Outfit', sans-serif;">Informasi lengkap booking layanan Anda</div>
             </div>
             <div>
-                <a class="pet-btn pet-btn-outline" href="{{ route('bookings.index') }}">← Kembali</a>
+                <a class="pet-btn pet-btn-outline" href="{{ auth()->user()->isAdmin() ? route('admin.bookings.index') : route('bookings.index') }}">← Kembali</a>
             </div>
         </div>
 
@@ -44,7 +44,7 @@
                     <p class="h6 mb-0" style="color: var(--ink);">🕐 {{ $booking->start_time }} - {{ $booking->end_time }}</p>
                 </div>
                 <div class="col-6">
-                    <label class="small fw-semibold text-muted mb-2 d-block">Provider Layanan</label>
+                    <label class="small fw-semibold text-muted mb-2 d-block">Tenaga Klinik</label>
                     <p class="h6 mb-0" style="color: var(--ink);">{{ $booking->provider->name }}</p>
                     <p class="small text-muted mb-0">{{ ucfirst($booking->provider->provider_type ?? '') }}</p>
                 </div>
@@ -74,8 +74,63 @@
             {{-- Catatan --}}
             @if($booking->notes)
                 <div class="mb-4">
-                    <label class="small fw-semibold text-muted mb-2 d-block">📝 Catatan Tambahan</label>
+                    <label class="small fw-semibold text-muted mb-2 d-block">📝 Catatan Kunjungan Pet Owner</label>
                     <p style="color: var(--ink);">{{ $booking->notes }}</p>
+                </div>
+            @endif
+
+            {{-- Completion Notes / Groomer Notes --}}
+            @if($booking->completion_notes)
+                <div class="mb-4 p-3 rounded-4 bg-light border" style="border-radius: 15px;">
+                    <label class="small fw-bold text-success mb-2 d-block">✨ Catatan Penyelesaian Groomer</label>
+                    <p class="small mb-0" style="color: var(--ink);">{{ $booking->completion_notes }}</p>
+                </div>
+            @endif
+
+            {{-- Medical Record Details --}}
+            @if($booking->medicalRecord)
+                <div class="mb-4 p-3 rounded-4 bg-light border" style="border-radius: 15px; border-color: #eadacb !important; background-color: #faf6f0 !important;">
+                    <label class="small fw-bold text-primary mb-3 d-block">🩺 Hasil Rekam Medis Dokter Hewan</label>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <span class="small fw-semibold text-muted d-block">Diagnosis</span>
+                            <p class="small mb-0" style="color: var(--ink); white-space: pre-line;">{{ $booking->medicalRecord->diagnosis }}</p>
+                        </div>
+                        <div class="col-12">
+                            <span class="small fw-semibold text-muted d-block">Tindakan Medis</span>
+                            <p class="small mb-0" style="color: var(--ink); white-space: pre-line;">{{ $booking->medicalRecord->treatment }}</p>
+                        </div>
+                        <div class="col-12">
+                            <span class="small fw-semibold text-muted d-block">Rekomendasi Perawatan</span>
+                            <p class="small mb-0" style="color: var(--ink); white-space: pre-line;">{{ $booking->medicalRecord->recommendation }}</p>
+                        </div>
+                        @if($booking->medicalRecord->notes)
+                            <div class="col-12">
+                                <span class="small fw-semibold text-muted d-block">Catatan Dokter</span>
+                                <p class="small mb-0" style="color: var(--ink); white-space: pre-line;">{{ $booking->medicalRecord->notes }}</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            {{-- Review Details (Completed Only) --}}
+            @if($booking->status === 'completed')
+                <div class="mb-4 p-3 rounded-4 bg-light border" style="border-radius: 15px; border-color: #f5e7db !important; background-color: #faf6f0 !important;">
+                    <label class="small fw-bold text-muted mb-2 d-block">⭐ Ulasan Pelayanan</label>
+                    @if($booking->review)
+                        <div class="d-flex align-items-center gap-1 mb-2">
+                            @for($i = 1; $i <= 5; $i++)
+                                <span style="font-size: 1.1rem; color: {{ $i <= $booking->review->rating ? '#ffb300' : '#ddd' }}">⭐</span>
+                            @endfor
+                            <span class="ms-2 small fw-bold text-dark">({{ $booking->review->rating }} / 5)</span>
+                        </div>
+                        <p class="small mb-0" style="color: var(--ink); font-style: italic;">
+                            "{{ $booking->review->comment ?? 'Tidak ada ulasan tertulis.' }}"
+                        </p>
+                    @else
+                        <p class="small text-muted mb-0">Pet owner belum me-review pelayanan ini.</p>
+                    @endif
                 </div>
             @endif
 
@@ -83,12 +138,12 @@
             <hr style="border-color: var(--color-warm-border);">
             
             <div class="mb-4">
-                <label class="small fw-semibold text-muted mb-3 d-block">Informasi Provider</label>
+                <label class="small fw-semibold text-muted mb-3 d-block">Informasi Tenaga Klinik</label>
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="h6 mb-1" style="color: var(--ink);">{{ $booking->provider->name }}</p>
                         <p class="small text-muted mb-1">📞 {{ $booking->provider->phone ?? 'N/A' }}</p>
-                        <p class="small text-muted mb-0">{{ $booking->provider->bio ?? 'Professional service provider' }}</p>
+                        <p class="small text-muted mb-0">{{ $booking->provider->bio ?? 'Tenaga medis / groomer profesional kami' }}</p>
                     </div>
                     <div>
                         @if($booking->provider->is_verified)
@@ -112,11 +167,11 @@
                     <form method="POST" action="{{ route('booking.updateStatus', $booking) }}" class="flex-grow-1">
                         @csrf
                         <input type="hidden" name="status" value="cancelled">
-                        <button type="submit" class="pet-btn pet-btn-outline w-100 py-2" onclick="return confirm('Yakin ingin membatalkan booking ini?')">Batalkan Pemesanan</button>
+                        <button type="submit" class="pet-btn pet-btn-outline w-100 py-2" onclick="return confirm('Yakin ingin membatalkan booking ini?')">Batalkan Booking</button>
                     </form>
                 @endif
                 
-                <a href="{{ route('bookings.index') }}" class="pet-btn pet-btn-outline flex-grow-1 py-2">← Kembali</a>
+                <a href="{{ auth()->user()->isAdmin() ? route('admin.bookings.index') : route('bookings.index') }}" class="pet-btn pet-btn-outline flex-grow-1 py-2">← Kembali</a>
             </div>
         </div>
     </div>

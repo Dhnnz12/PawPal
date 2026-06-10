@@ -12,6 +12,16 @@
             </div>
         </div>
 
+        @if ($errors->any())
+            <div class="alert alert-danger border-0 rounded-4 px-4 py-3 mb-4" style="background-color: #fcece6; color: #b05634; font-weight: 500;">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         @php
             $items = is_array($cart) ? $cart : [];
             $total = 0;
@@ -75,21 +85,88 @@
                 <div class="col-12 col-lg-4">
                     <div class="pet-card p-4">
                         <h2 class="h5 mb-3" style="font-family: 'Fraunces', serif; font-weight: 700;">🚚 Alamat Pengiriman</h2>
-                        
-                        <form method="POST" action="{{ route('marketplace.checkout') }}">
+
+                        <form id="checkoutForm" method="POST" action="{{ route('marketplace.checkout') }}" enctype="multipart/form-data">
                             @csrf
+
                             <div class="mb-4">
                                 <label class="form-label fw-semibold small text-muted">Alamat Pengiriman Lengkap</label>
-                                <textarea class="form-control pet-input w-100" name="shipping_address" rows="3" required placeholder="Tuliskan nama jalan, nomor rumah, RT/RW, dan kode pos..."></textarea>
+                                <textarea class="form-control pet-input w-100" id="shipping_address_input" name="shipping_address" rows="3" required placeholder="Tuliskan nama jalan, nomor rumah, RT/RW, dan kode pos..."></textarea>
                             </div>
-                            <button class="pet-btn pet-btn-primary w-100 py-3" type="submit">Bayar & Buat Order 💳</button>
+
+                            <button class="pet-btn pet-btn-primary w-100 py-3" type="button" onclick="openPaymentModal()">Bayar & Buat Order 💳</button>
+
+                            {{-- Payment Modal --}}
+                            <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true" style="font-family: 'Outfit', sans-serif;">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content text-start" style="border-radius: 24px; border: 1.5px solid var(--color-warm-border); background: #faf6f0;">
+                                        <div class="modal-header border-bottom-0 pb-0">
+                                            <h5 class="modal-title fw-bold" id="paymentModalLabel" style="font-family: 'Fraunces', serif; color: var(--ink);">💳 Konfirmasi Transfer Pembayaran</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+
+                                        <div class="modal-body py-4">
+                                            <div class="mb-4 text-center">
+                                                <div class="small text-muted fw-bold mb-2">SILAKAN TRANSFER SEBESAR:</div>
+                                                <div class="fs-3 fw-extrabold text-dark mb-3">Rp {{ number_format((float)$total, 0, ',', '.') }}</div>
+                                                <div class="p-3 rounded-4 bg-white border" style="max-width: 320px; margin: 0 auto; border-color: var(--color-warm-border) !important;">
+                                                    <div class="small fw-bold text-muted mb-1">REKENING TUJUAN BCA:</div>
+                                                    <div class="fs-4 fw-bold text-primary tracking-wide">689067</div>
+                                                    <div class="small fw-semibold text-secondary mt-1">A.n PawPal</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold small text-muted">Unggah Bukti Transfer <span class="text-danger">*</span></label>
+                                                <input type="file" name="payment_proof" id="payment_proof_input" class="form-control pet-input" accept="image/*,application/pdf" required>
+                                                <div class="small text-muted mt-1">Format: JPG, PNG, PDF (maks. 5MB)</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer border-top-0 pt-0">
+                                            <button type="button" class="pet-btn pet-btn-outline py-2 px-3" data-bs-dismiss="modal">Batal</button>
+                                            <button type="button" onclick="submitCheckoutForm()" class="pet-btn pet-btn-primary py-2 px-4">Booking Sekarang ➔</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
         @endif
     </div>
+
+    <script>
+        function openPaymentModal() {
+            const address = document.getElementById('shipping_address_input').value.trim();
+            if (!address) {
+                alert('Harap isi alamat pengiriman lengkap terlebih dahulu.');
+                document.getElementById('shipping_address_input').focus();
+                return;
+            }
+
+            const modalEl = document.getElementById('paymentModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        function submitCheckoutForm() {
+            const address = document.getElementById('shipping_address_input').value.trim();
+            if (!address) {
+                alert('Harap isi alamat pengiriman lengkap terlebih dahulu.');
+                return;
+            }
+
+            const fileInput = document.getElementById('payment_proof_input');
+            if (!fileInput.value) {
+                alert('Harap unggah bukti transfer terlebih dahulu.');
+                return;
+            }
+
+            // langsung submit form (file input tetap ada di dalam form, jadi tidak perlu appendChild)
+            document.getElementById('checkoutForm').submit();
+        }
+    </script>
 @endsection
-
-
 

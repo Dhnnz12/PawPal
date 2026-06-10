@@ -20,7 +20,7 @@
         {{-- Mockup Stat Cards --}}
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
-                <div class="summary-widget">
+                <div class="summary-widget widget-users">
                     <div>
                         <div class="value">{{ $pets->count() }}</div>
                         <div class="small text-muted fw-semibold">Hewan Saya</div>
@@ -29,16 +29,16 @@
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="summary-widget" style="border-left: 4.5px solid #d48c6a;">
+                <div class="summary-widget widget-bookings">
                     <div>
                         <div class="value">{{ $bookings->whereIn('status', ['pending', 'confirmed'])->count() }}</div>
-                        <div class="small text-muted fw-semibold">Pemesanan Aktif</div>
+                        <div class="small text-muted fw-semibold">Booking Aktif</div>
                     </div>
                     <div class="fs-2">⏳</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="summary-widget" style="border-left: 4.5px solid #b06948;">
+                <div class="summary-widget widget-income">
                     <div>
                         <div class="value">{{ $orders->where('status', 'pending')->count() }}</div>
                         <div class="small text-muted fw-semibold">Menunggu Bayar</div>
@@ -47,7 +47,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="summary-widget" style="border-left: 4.5px solid #759a83;">
+                <div class="summary-widget widget-active">
                     <div>
                         <div class="value">{{ $orders->where('status', 'completed')->count() + $bookings->where('status', 'completed')->count() }}</div>
                         <div class="small text-muted fw-semibold">Transaksi Selesai</div>
@@ -60,8 +60,8 @@
         {{-- Layanan Cepat (Quick Access) --}}
         <div class="mb-5">
             <h3 class="h5 mb-3" style="font-family: 'Fraunces', serif; font-weight: 700; color: #4e3629;">⚡ Layanan Cepat</h3>
-            <div class="row g-3">
-                <div class="col-6 col-md-3">
+            <div class="row g-3 justify-content-center">
+                <div class="col-12 col-sm-4">
                     <a href="{{ route('booking.search') }}?type=groomer" class="pet-card p-3 text-decoration-none d-flex align-items-center gap-3 bg-white" style="color: inherit;">
                         <span class="fs-2">🧼</span>
                         <div>
@@ -70,7 +70,7 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-12 col-sm-4">
                     <a href="{{ route('booking.search') }}?type=veterinarian" class="pet-card p-3 text-decoration-none d-flex align-items-center gap-3 bg-white" style="color: inherit;">
                         <span class="fs-2">🩺</span>
                         <div>
@@ -79,16 +79,7 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-3">
-                    <a href="{{ route('booking.search') }}?type=pet_sitter" class="pet-card p-3 text-decoration-none d-flex align-items-center gap-3 bg-white" style="color: inherit;">
-                        <span class="fs-2">🏡</span>
-                        <div>
-                            <div class="fw-bold small text-dark">Pet Sitter</div>
-                            <div class="small text-muted" style="font-size: 0.75rem;">Penitipan Hewan</div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-6 col-md-3">
+                <div class="col-12 col-sm-4">
                     <a href="{{ route('marketplace.index') }}" class="pet-card p-3 text-decoration-none d-flex align-items-center gap-3 bg-white" style="color: inherit;">
                         <span class="fs-2">🛒</span>
                         <div>
@@ -140,7 +131,7 @@
             <div class="col-12 col-lg-7">
                 <div class="pet-card p-4 bg-white h-100">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h3 class="h5 mb-0" style="font-family: 'Fraunces', serif; font-weight: 700; color: #4e3629;">📅 Pemesanan Terbaru</h3>
+                        <h3 class="h5 mb-0" style="font-family: 'Fraunces', serif; font-weight: 700; color: #4e3629;">📅 Booking Terbaru</h3>
                         <a href="{{ route('bookings.index') }}" class="small text-decoration-none fw-bold" style="color: var(--secondary);">Lihat Semua</a>
                     </div>
                     
@@ -171,7 +162,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td class="text-center text-muted py-4 small">Belum ada pemesanan terbaru.</td>
+                                        <td class="text-center text-muted py-4 small">Belum ada booking terbaru.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

@@ -22,7 +22,7 @@
                     @else
                         <a href="{{ route('owner.dashboard') }}" class="nav-link-custom {{ Route::is('owner.dashboard') ? 'active' : '' }}">🏠 Dashboard</a>
                         <a href="{{ route('pets.index') }}" class="nav-link-custom {{ Route::is('pets.*') ? 'active' : '' }}">🐾 Hewan Saya</a>
-                        <a href="{{ route('booking.search') }}" class="nav-link-custom {{ Route::is('booking.*') ? 'active' : '' }}">📅 Pesan Layanan</a>
+                        <a href="{{ route('booking.search') }}" class="nav-link-custom {{ Route::is('booking.*') ? 'active' : '' }}">📅 Booking Layanan</a>
                         <a href="{{ route('marketplace.index') }}" class="nav-link-custom {{ Route::is('marketplace.*') ? 'active' : '' }}">🛒 Marketplace</a>
                         <a href="{{ route('medical-records.index') }}" class="nav-link-custom {{ Route::is('medical-records.*') ? 'active' : '' }}">🏥 Rekam Medis</a>
                     @endif
@@ -71,8 +71,8 @@
                                 <ul class="dropdown-menu dropdown-menu-end" style="border: 1.5px solid var(--color-warm-border); border-radius: 20px; background-color: #ffffff;">
                                     <li><a class="dropdown-item" href="{{ route('owner.dashboard') }}" style="color: var(--ink);">🏠 Dashboard</a></li>
                                     <li><a class="dropdown-item" href="{{ route('pets.index') }}" style="color: var(--ink);">🐾 My Pets</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('booking.search') }}" style="color: var(--ink);">📅 Booking Services</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('bookings.index') }}" style="color: var(--ink);">📋 My Bookings</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('booking.search') }}" style="color: var(--ink);">📅 Booking Layanan</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('bookings.index') }}" style="color: var(--ink);">📋 History Booking</a></li>
                                     <li><a class="dropdown-item" href="{{ route('medical-records.index') }}" style="color: var(--ink);">🏥 Medical Records</a></li>
                                     <li><a class="dropdown-item" href="{{ route('marketplace.index') }}" style="color: var(--ink);">🛒 Marketplace</a></li>
                                     <li><a class="dropdown-item" href="{{ route('orders.index') }}" style="color: var(--ink);">🛍️ Purchases & Orders</a></li>

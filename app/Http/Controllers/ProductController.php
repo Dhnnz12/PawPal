@@ -33,7 +33,7 @@ class ProductController extends Controller
             'image' => $imagePath,
         ]);
 
-        return back()->with('success', 'Produk berhasil ditambahkan ke marketplace!');
+        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil ditambahkan ke marketplace!');
     }
 
     public function create()
@@ -60,19 +60,21 @@ class ProductController extends Controller
             'image' => 'nullable|image|max:2048',
         ]);
 
-        if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
-            }
-            $product->image = $request->file('image')->store('products', 'public');
-        }
-
-        $product->update([
+        $data = [
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
             'stock' => $request->stock,
-        ]);
+        ];
+
+        if ($request->hasFile('image')) {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $data['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        $product->update($data);
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui!');
     }
@@ -89,6 +91,6 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return back()->with('success', 'Produk berhasil dihapus!');
+        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus!');
     }
 }

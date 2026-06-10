@@ -25,6 +25,7 @@
                 @if(Auth::user()->isAdmin())
                     {{-- Admin Sidebar Menu --}}
                     <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ Route::is('admin.dashboard') ? 'active' : '' }}">📊 Dashboard</a>
+                    <a href="{{ route('admin.bookings.index') }}" class="sidebar-link {{ Route::is('admin.bookings.*') ? 'active' : '' }}">📋 Riwayat Booking</a>
                     <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ Route::is('admin.users.*') ? 'active' : '' }}">👥 Pengguna</a>
                     <a href="{{ route('admin.services.index') }}" class="sidebar-link {{ Route::is('admin.services.*') ? 'active' : '' }}">🔧 Layanan</a>
                     <a href="{{ route('admin.transactions.index') }}" class="sidebar-link {{ Route::is('admin.transactions.*') ? 'active' : '' }}">💳 Transaksi</a>
@@ -35,8 +36,8 @@
                     {{-- Pet Owner Sidebar Menu --}}
                     <a href="{{ route('owner.dashboard') }}" class="sidebar-link {{ Route::is('owner.dashboard') ? 'active' : '' }}">🏠 Dashboard</a>
                     <a href="{{ route('pets.index') }}" class="sidebar-link {{ Route::is('pets.*') ? 'active' : '' }}">🐾 Hewan Saya</a>
-                    <a href="{{ route('booking.search') }}" class="sidebar-link {{ Route::is('booking.search') || Route::is('booking.create') ? 'active' : '' }}">📅 Pesan Layanan</a>
-                    <a href="{{ route('bookings.index') }}" class="sidebar-link {{ Route::is('bookings.index') || Route::is('bookings.show') ? 'active' : '' }}">📋 Pemesanan Saya</a>
+                    <a href="{{ route('booking.search') }}" class="sidebar-link {{ Route::is('booking.search') || Route::is('booking.create') ? 'active' : '' }}">📅 Booking Layanan</a>
+                    <a href="{{ route('bookings.index') }}" class="sidebar-link {{ Route::is('bookings.index') || Route::is('bookings.show') ? 'active' : '' }}">📋 History Booking</a>
                     <a href="{{ route('orders.index') }}" class="sidebar-link {{ Route::is('orders.*') ? 'active' : '' }}">🛍️ Pembelian & Transaksi</a>
                     <a href="{{ route('marketplace.index') }}" class="sidebar-link {{ Route::is('marketplace.*') ? 'active' : '' }}">🛒 Marketplace</a>
                     <a href="{{ route('addresses.index') }}" class="sidebar-link {{ Route::is('addresses.*') ? 'active' : '' }}">📍 Alamat Saya</a>

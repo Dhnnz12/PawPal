@@ -1,6 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
-@section('content')
+@section('dashboard_content')
     <div class="py-2" style="max-width: 800px; margin: 0 auto;">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
             <div>

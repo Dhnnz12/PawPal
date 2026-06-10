@@ -35,11 +35,12 @@ return new class extends Migration
 
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('provider_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('provider_id')->nullable()->references('id')->on('users')->onDelete('cascade');
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('price', 12, 2);
             $table->integer('duration_minutes')->default(60);
+            $table->string('provider_type')->nullable(); // groomer or veterinarian
             $table->timestamps();
         });
 
@@ -76,6 +77,7 @@ return new class extends Migration
             $table->decimal('total_price', 12, 2);
             $table->foreignId('address_id')->nullable()->constrained()->onDelete('set null');
             $table->text('notes')->nullable();
+            $table->text('completion_notes')->nullable(); // notes by groomer/vet upon completion
             $table->timestamps();
         });
 
@@ -86,8 +88,9 @@ return new class extends Migration
             $table->foreignId('booking_id')->nullable()->constrained()->onDelete('set null');
             $table->date('visit_date');
             $table->text('diagnosis');
-            $table->text('treatment');
-            $table->text('notes')->nullable();
+            $table->text('treatment'); // tindakan
+            $table->text('recommendation')->nullable(); // rekomendasi perawatan
+            $table->text('notes')->nullable(); // catatan dari dokter
             $table->string('pdf_path')->nullable();
             $table->timestamps();
         });
@@ -108,6 +111,7 @@ return new class extends Migration
             $table->string('status')->default('pending'); // pending, paid, shipped, completed, cancelled
             $table->decimal('total_amount', 12, 2);
             $table->text('shipping_address');
+            $table->string('payment_proof')->nullable(); // proof of transfer
             $table->timestamps();
         });
 

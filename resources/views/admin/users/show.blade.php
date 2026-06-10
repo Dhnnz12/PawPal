@@ -52,10 +52,6 @@
                             <span class="pet-badge pet-badge-sage px-3 py-1">🩺 Dokter Hewan</span>
                         @elseif($user->isGroomer())
                             <span class="pet-badge pet-badge-sage px-3 py-1">✨ Groomer</span>
-                        @elseif($user->isPetSitter())
-                            <span class="pet-badge pet-badge-sage px-3 py-1">🏡 Pet Sitter</span>
-                        @elseif($user->isSeller())
-                            <span class="pet-badge pet-badge-sage px-3 py-1">🛒 Seller</span>
                         @elseif($user->isAdmin())
                             <span class="pet-badge px-3 py-1" style="background-color: #e5e7eb; color: #374151; border-color: #d1d5db;">🛡️ Admin</span>
                         @else
@@ -117,7 +113,7 @@
                                 @endif
                             </div>
 
-                            @if(in_array($user->provider_type, ['veterinarian', 'seller']))
+                            @if(in_array($user->provider_type, ['veterinarian']))
                                 <div class="col-12">
                                     <label class="small fw-semibold text-muted d-block mb-1">📄 Dokumen Sertifikasi</label>
                                     @if($user->certification)

@@ -34,12 +34,25 @@ class BookingController extends Controller
         $user = Auth::user();
         $pets = $user->pets;
         $addresses = $user->addresses;
-        $services = $provider->services;
+        
+        // Load clinic-wide services based on the provider's type dynamically
+        $services = Service::whereNull('provider_id')
+            ->where('provider_type', $provider->provider_type)
+            ->get();
 
         // Get schedules to show operating times
         $schedules = $provider->schedules()->where('is_available', true)->get();
 
-        return view('owner.create_booking', compact('provider', 'pets', 'addresses', 'services', 'schedules'));
+        // Get already booked slots for this provider
+        $bookedSlots = Booking::where('provider_id', $provider->id)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->get(['booking_date', 'start_time'])
+            ->map(function($b) {
+                return $b->booking_date . '_' . \Carbon\Carbon::parse($b->start_time)->format('H:i');
+            })
+            ->toArray();
+
+        return view('owner.create_booking', compact('provider', 'pets', 'addresses', 'services', 'schedules', 'bookedSlots'));
     }
 
     public function store(Request $request)
@@ -50,12 +63,19 @@ class BookingController extends Controller
             'service_id' => 'required|exists:services,id',
             'booking_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required|date_format:H:i',
-            'address_id' => 'required|exists:addresses,id',
+            'address_id' => 'nullable|exists:addresses,id',
             'notes' => 'nullable|string',
         ]);
 
         $provider = User::find($request->provider_id);
         $service = Service::find($request->service_id);
+
+        // Check operational hours (strictly one of the 8 slots)
+        $timeStr = $request->start_time;
+        $validStartTimes = ['07:00', '08:00', '09:00', '10:00', '13:00', '14:00', '15:00', '16:00'];
+        if (!in_array($timeStr, $validStartTimes)) {
+            return back()->withErrors(['start_time' => 'Booking hanya dapat dilakukan pada jam operasional 8-jam yang telah ditentukan.'])->withInput();
+        }
 
         // Check if provider works on this day of week
         $dayOfWeek = date('w', strtotime($request->booking_date));
@@ -65,13 +85,12 @@ class BookingController extends Controller
             ->first();
 
         if (!$schedule) {
-            return back()->withErrors(['booking_date' => 'Penyedia layanan tidak aktif di hari tersebut.'])->withInput();
+            return back()->withErrors(['booking_date' => 'Tenaga klinik tidak aktif di hari tersebut.'])->withInput();
         }
 
         // Check if time is within schedule hours
-        $timeStr = $request->start_time;
         if ($timeStr < date('H:i', strtotime($schedule->start_time)) || $timeStr > date('H:i', strtotime($schedule->end_time))) {
-            return back()->withErrors(['start_time' => 'Jam pilihan di luar jam kerja penyedia layanan.'])->withInput();
+            return back()->withErrors(['start_time' => 'Jam pilihan di luar jam kerja tenaga klinik.'])->withInput();
         }
 
         // Check for double booking
@@ -98,7 +117,7 @@ class BookingController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('owner.dashboard')->with('success', 'Pemesanan berhasil diajukan! Menunggu konfirmasi penyedia.');
+        return redirect()->route('owner.dashboard')->with('success', 'Pemesanan berhasil diajukan! Menunggu konfirmasi admin.');
     }
 
     public function updateStatus(Request $request, Booking $booking)
@@ -109,28 +128,81 @@ class BookingController extends Controller
 
         $user = Auth::user();
 
-        // Security check
-        if ($user->isServiceProvider()) {
-            if ($booking->provider_id !== $user->id) {
-                abort(403);
+        // Security check: Only Admin and the Booking Owner (cancellation only) can update status.
+        if ($user->isAdmin()) {
+            if ($request->status === 'completed') {
+                abort(403, 'Gunakan form penyelesaian untuk menyelesaikan booking.');
             }
         } elseif ($user->isPetOwner()) {
             if ($booking->pet_owner_id !== $user->id) {
                 abort(403);
             }
-            // Pet owner can only cancel
+            // Pet owner can only cancel their booking
             if ($request->status !== 'cancelled') {
                 abort(403);
             }
         } else {
-            // Admin can do anything
-            if (!$user->isAdmin()) {
-                abort(403);
-            }
+            // Service providers (clinical staff) are not allowed to accept/decline bookings directly
+            abort(403);
         }
 
         $booking->update(['status' => $request->status]);
 
         return back()->with('success', 'Status pesanan berhasil diupdate menjadi: ' . __($request->status));
+    }
+
+    public function showCompleteForm(Booking $booking)
+    {
+        abort_unless(Auth::user()->isAdmin(), 403);
+        
+        if ($booking->status !== 'confirmed') {
+            return redirect()->route('admin.dashboard')->with('error', 'Hanya booking dengan status Diterima yang dapat diselesaikan.');
+        }
+
+        return view('admin.bookings.complete', compact('booking'));
+    }
+
+    public function submitComplete(Request $request, Booking $booking)
+    {
+        abort_unless(Auth::user()->isAdmin(), 403);
+
+        if ($booking->status !== 'confirmed') {
+            return redirect()->route('admin.dashboard')->with('error', 'Hanya booking dengan status Diterima yang dapat diselesaikan.');
+        }
+
+        $serviceType = $booking->service->provider_type ?? '';
+
+        if ($serviceType === 'veterinarian') {
+            $request->validate([
+                'diagnosis' => 'required|string',
+                'treatment' => 'required|string',
+                'recommendation' => 'required|string',
+                'notes' => 'nullable|string',
+            ]);
+
+            \App\Models\MedicalRecord::create([
+                'pet_id' => $booking->pet_id,
+                'vet_id' => $booking->provider_id,
+                'booking_id' => $booking->id,
+                'visit_date' => now()->toDateString(),
+                'diagnosis' => $request->diagnosis,
+                'treatment' => $request->treatment,
+                'recommendation' => $request->recommendation,
+                'notes' => $request->notes,
+            ]);
+        } else {
+            // Groomer / other services
+            $request->validate([
+                'notes' => 'nullable|string',
+            ]);
+
+            $booking->update([
+                'completion_notes' => $request->notes ?: '-',
+            ]);
+        }
+
+        $booking->update(['status' => 'completed']);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Booking telah berhasil diselesaikan!');
     }
 }

@@ -1,6 +1,25 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
-@section('content')
+@section('dashboard_content')
+    <style>
+        /* Bintang kosong (abu-abu) tanpa warna */
+        .star-rating label {
+            color: #ddd !important;
+        }
+
+        /* Saat user klik/hover, baru nyala kuning */
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffb300 !important;
+        }
+
+        /* Supaya checkbox radio tetap bisa dipakai tapi tidak terlihat */
+        .star-rating input {
+            display: none;
+        }
+    </style>
+
     <div class="py-2" style="max-width: 600px; margin: 0 auto;">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
             <div>
@@ -12,7 +31,7 @@
         <div class="pet-card p-4 mb-4">
             <div class="mb-4">
                 <h4 class="h6" style="font-family: 'Fraunces', serif; font-weight: 700; color: var(--ink); margin-bottom: 12px;">Detail Layanan</h4>
-                
+
                 <div class="row g-3 small mb-3">
                     <div class="col-6">
                         <label class="text-muted mb-1 d-block">Provider</label>
@@ -41,18 +60,20 @@
 
                 <div class="mb-4">
                     <label class="form-label fw-semibold" style="color: var(--ink); font-size: 0.95rem;">Rating Kepuasan</label>
-                    <div class="d-flex gap-2">
-                        @for($i = 1; $i <= 5; $i++)
-                            <input type="radio" id="rating-{{ $i }}" name="rating" value="{{ $i }}" class="d-none" @if($i === 5) checked @endif required>
-                            <label for="rating-{{ $i }}" class="mb-0" style="cursor: pointer; font-size: 1.8rem; color: #ddd; transition: all 0.2s;">⭐</label>
+
+                    <div class="star-rating d-flex flex-row-reverse justify-content-end gap-1">
+                        @for($i = 5; $i >= 1; $i--)
+                            <input type="radio" id="rating-{{ $i }}" name="rating" value="{{ $i }}" class="visually-hidden" required>
+                            <label for="rating-{{ $i }}" class="mb-0 px-1" style="cursor: pointer; font-size: 2rem; transition: all 0.2s;">★</label>
                         @endfor
                     </div>
+
                     <div class="small text-muted mt-2">Klik bintang untuk memberi rating (1-5)</div>
                 </div>
 
                 <div class="mb-4">
                     <label class="form-label fw-semibold" style="color: var(--ink); font-size: 0.95rem;">Ulasan Anda</label>
-                    <textarea class="form-control pet-input" name="review_text" rows="4" placeholder="Ceritakan pengalaman Anda dengan layanan ini..." style="border: 1.5px solid #e8dcc8; border-radius: 20px; padding: 12px 16px; font-family: 'Outfit', sans-serif;" required></textarea>
+                    <textarea class="form-control pet-input" name="comment" rows="4" placeholder="Ceritakan pengalaman Anda dengan layanan ini..." style="border: 1.5px solid #e8dcc8; border-radius: 20px; padding: 12px 16px; font-family: 'Outfit', sans-serif;" required></textarea>
                 </div>
 
                 <div class="mb-4">
@@ -84,21 +105,5 @@
             </form>
         </div>
     </div>
-
-    <script>
-        // Star rating interaction
-        document.querySelectorAll('input[name="rating"]').forEach((radio, idx) => {
-            radio.addEventListener('change', function() {
-                document.querySelectorAll('label[for^="rating-"]').forEach((label, labelIdx) => {
-                    label.style.color = labelIdx < this.value ? '#c06c48' : '#ddd';
-                });
-            });
-            // Initial star display
-            if(radio.checked) {
-                document.querySelectorAll('label[for^="rating-"]').forEach((label, labelIdx) => {
-                    label.style.color = labelIdx < radio.value ? '#c06c48' : '#ddd';
-                });
-            }
-        });
-    </script>
 @endsection
+

@@ -16,7 +16,7 @@
                     Layanan perawatan hewan terpercaya dalam satu platform untuk mereka yang paling berarti.
                 </p>
                 <div class="d-flex gap-3 flex-wrap">
-                    <a href="{{ route('booking.search') }}" class="pet-btn pet-btn-primary px-4 py-3">Pesan Layanan</a>
+                    <a href="{{ route('booking.search') }}" class="pet-btn pet-btn-primary px-4 py-3">Booking Layanan</a>
                     <a href="{{ route('marketplace.index') }}" class="pet-btn pet-btn-outline px-4 py-3">Belanja Produk</a>
                 </div>
             </div>
@@ -39,8 +39,8 @@
         {{-- Layanan Kami --}}
         <div id="services" class="mb-5 py-4">
             <h2 class="text-center mb-5" style="font-family: 'Fraunces', serif; font-weight: 800; color: #4e3629;">🐾 Layanan Kami</h2>
-            <div class="row g-4">
-                <div class="col-12 col-md-6 col-lg-3">
+            <div class="row g-4 justify-content-center">
+                <div class="col-12 col-md-4">
                     <div class="pet-card p-4 h-100 d-flex flex-column justify-content-between" style="background-color: #ffffff;">
                         <div>
                             <div class="fs-1 mb-3">🧼</div>
@@ -51,7 +51,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-6 col-lg-3">
+                <div class="col-12 col-md-4">
                     <div class="pet-card p-4 h-100 d-flex flex-column justify-content-between" style="background-color: #ffffff;">
                         <div>
                             <div class="fs-1 mb-3">🩺</div>
@@ -62,18 +62,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-6 col-lg-3">
-                    <div class="pet-card p-4 h-100 d-flex flex-column justify-content-between" style="background-color: #ffffff;">
-                        <div>
-                            <div class="fs-1 mb-3">🏡</div>
-                            <h3 class="h5 mb-2" style="font-family: 'Fraunces', serif; font-weight: 700;">Pet Sitter</h3>
-                            <p class="small text-muted">Penitipan harian terpercaya dengan update berkala kondisi hewan Anda.</p>
-                        </div>
-                        <a href="{{ route('booking.search') }}?type=pet_sitter" class="pet-btn pet-btn-outline py-2 px-3 mt-3 w-100" style="font-size: 0.85rem;">Lihat Layanan ➔</a>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-6 col-lg-3">
+                <div class="col-12 col-md-4">
                     <div class="pet-card p-4 h-100 d-flex flex-column justify-content-between" style="background-color: #ffffff;">
                         <div>
                             <div class="fs-1 mb-3">🛒</div>
@@ -94,7 +83,7 @@
                     <div class="p-3 bg-white rounded-3 border">
                         <span class="fs-3 d-block mb-2">1️⃣</span>
                         <div class="fw-bold">Pilih Layanan</div>
-                        <p class="small text-muted mb-0">Pilih grooming, vet, atau boarding.</p>
+                        <p class="small text-muted mb-0">Pilih grooming atau dokter hewan.</p>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
@@ -141,8 +130,8 @@
                         <div class="d-flex gap-3 align-items-start">
                             <span class="fs-4 p-2 rounded-3" style="background-color: #fcece6; color: #b05634;">⚡</span>
                             <div>
-                                <h4 class="h6 mb-1" style="font-weight: 700;">Pemesanan Instan</h4>
-                                <p class="small text-muted mb-0">Cari, pilih, dan pesan jadwal kunjungan atau perawatan dalam hitungan detik.</p>
+                                <h4 class="h6 mb-1" style="font-weight: 700;">Booking Instan</h4>
+                                <p class="small text-muted mb-0">Cari, pilih, dan booking jadwal kunjungan atau perawatan ke rumah dalam hitungan detik.</p>
                             </div>
                         </div>
                     </div>
@@ -206,7 +195,7 @@
                             </h3>
                             <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                                 <div class="accordion-body text-muted px-4 pb-4 pt-1" style="line-height: 1.6;">
-                                    Anda cukup login ke akun PawPal Anda, masuk to menu "Booking Services", pilih jenis layanan grooming, tentukan waktu dan peliharaan Anda, lalu selesaikan pembayaran. Groomer kami akan datang langsung ke alamat Anda.
+                                    Anda cukup login ke akun PawPal Anda, masuk ke menu "Booking Layanan", pilih jenis layanan grooming, tentukan waktu dan peliharaan Anda, lalu selesaikan pembayaran. Groomer kami akan datang langsung ke alamat Anda.
                                 </div>
                             </div>
                         </div>

@@ -20,6 +20,7 @@ class Booking extends Model
         'total_price',
         'address_id',
         'notes',
+        'completion_notes',
     ];
 
     public function petOwner()

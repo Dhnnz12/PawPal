@@ -50,6 +50,7 @@ class MedicalRecordController extends Controller
             abort(403, 'Hanya dokter hewan atau administrator yang dapat menulis rekam medis.');
         }
 
+        $booking = null;
         if ($request->booking_id) {
             $booking = Booking::find($request->booking_id);
             if ($booking && !$user->isAdmin() && $booking->provider_id !== $user->id) {
@@ -62,9 +63,11 @@ class MedicalRecordController extends Controller
             $pdfPath = $request->file('pdf_attachment')->store('medical_records', 'public');
         }
 
+        $vetId = $user->isVet() ? $user->id : ($booking ? ($booking->provider_id ?? $user->id) : $user->id);
+
         MedicalRecord::create([
             'pet_id' => $request->pet_id,
-            'vet_id' => $user->isVet() ? $user->id : ($booking->provider_id ?? $user->id),
+            'vet_id' => $vetId,
             'booking_id' => $request->booking_id,
             'visit_date' => now()->toDateString(),
             'diagnosis' => $request->diagnosis,

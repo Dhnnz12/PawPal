@@ -25,7 +25,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|string|in:pet_owner,service_provider',
-            'provider_type' => 'required_if:role,service_provider|nullable|string|in:groomer,veterinarian,pet_sitter,seller',
+            'provider_type' => 'required_if:role,service_provider|nullable|string|in:groomer,veterinarian',
             'phone' => 'nullable|string|max:20',
             'bio' => 'nullable|string',
             'avatar' => 'nullable|image|max:2048',
@@ -44,10 +44,8 @@ class AuthController extends Controller
             $certPath = $request->file('certification')->store('certifications', 'public');
         }
 
-        // Veterinarians and Sellers require admin verification, so is_verified = false.
-        // Groomers and Pet Sitters don't necessarily require it, or we can make them all verified for simplicity, 
-        // but let's make Veterinarians and Sellers start as false (is_verified = false) and require Admin approval.
-        $needsVerification = in_array($request->provider_type, ['veterinarian', 'seller']);
+        // Veterinarians require admin verification, so is_verified = false.
+        $needsVerification = in_array($request->provider_type, ['veterinarian']);
 
         $user = User::create([
             'name' => $request->name,
@@ -107,5 +105,45 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'bio' => 'nullable|string',
+            'avatar' => 'nullable|image|max:2048',
+            'current_password' => 'required_with:password|nullable|string',
+            'password' => 'nullable|string|min:6|confirmed',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'bio' => $request->bio,
+        ];
+
+        if ($request->filled('password')) {
+            if (!Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Kata sandi saat ini tidak cocok.'])->withInput();
+            }
+            $data['password'] = Hash::make($request->password);
+        }
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->update($data);
+
+        return redirect()->route('profile.index')->with('success', 'Profil Anda berhasil diperbarui!');
     }
 }
