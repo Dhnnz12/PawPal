@@ -115,17 +115,10 @@
                             <span class="fw-bold text-danger">Rp {{ number_format($cartTotal, 0, ',', '.') }}</span>
                         </div>
 
-                        {{-- Direct Checkout form --}}
-                        <form method="POST" action="{{ route('marketplace.checkout') }}">
-                            @csrf
-                            <div class="mb-3">
-                                <label class="form-label small fw-semibold text-muted">Alamat Pengiriman</label>
-                                <textarea class="form-control pet-input w-100 p-2" name="shipping_address" rows="2" required placeholder="Alamat pengiriman..." style="font-size: 0.8rem;"></textarea>
-                            </div>
-                            <button type="submit" class="pet-btn pet-btn-secondary w-100 py-2.5" style="font-size: 0.9rem;">
-                                Checkout ➔
-                            </button>
-                        </form>
+                        {{-- Direct Checkout CTA (use cart page so payment_proof field is available) --}}
+                        <a href="{{ route('marketplace.cart') }}" class="pet-btn pet-btn-secondary w-100 py-2.5 text-center" style="font-size: 0.9rem;">
+                            Checkout ➔
+                        </a>
                     @endif
                 </div>
             </div>

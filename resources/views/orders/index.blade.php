@@ -59,10 +59,10 @@
                             </div>
                         </div>
 
-                        @if($order->payment_proof_url)
+                        @if($order->payment_proof)
                             <div class="mb-3">
                                 <label class="small fw-semibold text-muted mb-1 d-block">Bukti Pembayaran</label>
-                                <a href="{{ $order->payment_proof_url }}" target="_blank" class="pet-btn pet-btn-outline py-2 px-3" style="font-size: 0.85rem; width: 100%;">
+                                <a href="{{ asset('storage/' . $order->payment_proof) }}" target="_blank" class="pet-btn pet-btn-outline py-2 px-3" style="font-size: 0.85rem; width: 100%;">
                                     👁️ Lihat Bukti Pembayaran
                                 </a>
                             </div>

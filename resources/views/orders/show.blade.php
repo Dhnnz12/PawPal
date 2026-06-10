@@ -120,14 +120,14 @@
                         <span class="small fw-semibold" style="color: var(--ink);">Metode</span>
                         <span class="small" style="color: var(--ink);">Transfer Bank BCA (689067)</span>
                     </div>
-                    @if($order->payment_proof)
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="small fw-semibold" style="color: var(--ink);">Bukti Transfer</span>
-                            <a href="{{ asset('storage/' . $order->payment_proof) }}" target="_blank" class="small fw-bold text-decoration-none" style="color: var(--primary);">
-                                📄 Lihat Bukti Transfer
-                            </a>
-                        </div>
-                    @endif
+                        @if($order->payment_proof)
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small fw-semibold" style="color: var(--ink);">Bukti Transfer</span>
+                                <a href="{{ asset('storage/' . $order->payment_proof) }}" target="_blank" class="small fw-bold text-decoration-none" style="color: var(--primary);">
+                                    📄 Lihat Bukti Transfer
+                                </a>
+                            </div>
+                        @endif
                 </div>
             </div>
 

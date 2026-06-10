@@ -125,7 +125,7 @@
 
                                         <div class="modal-footer border-top-0 pt-0">
                                             <button type="button" class="pet-btn pet-btn-outline py-2 px-3" data-bs-dismiss="modal">Batal</button>
-                                            <button type="button" onclick="submitCheckoutForm()" class="pet-btn pet-btn-primary py-2 px-4">Booking Sekarang ➔</button>
+                                            <button id="checkoutSubmitBtn" type="button" onclick="submitCheckoutForm()" class="pet-btn pet-btn-primary py-2 px-4">Bayar Sekarang ➔</button>
                                         </div>
                                     </div>
                                 </div>
@@ -151,7 +151,11 @@
             modal.show();
         }
 
+        let checkoutSubmitting = false;
+
         function submitCheckoutForm() {
+            if (checkoutSubmitting) return;
+            checkoutSubmitting = true;
             const address = document.getElementById('shipping_address_input').value.trim();
             if (!address) {
                 alert('Harap isi alamat pengiriman lengkap terlebih dahulu.');
